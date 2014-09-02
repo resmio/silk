@@ -58,9 +58,10 @@ class RequestModelFactory(object):
         """
         From Django docs (https://docs.djangoproject.com/en/1.6/ref/request-response/#httprequest-objects):
 
-        "With the exception of CONTENT_LENGTH and CONTENT_TYPE, as given above, any HTTP headers in the request are converted to
-        META keys by converting all characters to uppercase, replacing any hyphens with underscores and adding an HTTP_ prefix
-        to the name. So, for example, a header called X-Bender would be mapped to the META key HTTP_X_BENDER."
+        "With the exception of CONTENT_LENGTH and CONTENT_TYPE, as given above, any HTTP headers in the request are
+        converted to META keys by converting all characters to uppercase, replacing any hyphens with underscores and
+        adding an HTTP_ prefix to the name. So, for example, a header called X-Bender would be mapped to the META key
+        HTTP_X_BENDER."
         """
         headers = {}
         for k, v in self.request.META.items():
@@ -106,7 +107,8 @@ class RequestModelFactory(object):
                 except UnicodeDecodeError:
                     raw_body = ''
             except Exception as e:
-                Logger.error('Unable to decode request body using char_set %s due to error: %s. Will ignore. Stacktrace:' % (char_set, e))
+                Logger.error('Unable to decode request body using char_set %s due to error: %s. Will ignore. '
+                             'Stacktrace:' % (char_set, e))
                 traceback.print_exc()
         else:
             # Default to an attempt at UTF-8 decoding.
@@ -124,12 +126,15 @@ class RequestModelFactory(object):
                 size = sys.getsizeof(raw_body, default=None)
                 request_identifier = self.request.path
                 if not size:
-                    Logger.error('No way in which to get size of request body for %s, will ignore it', request_identifier)
+                    Logger.error('No way in which to get size of request body for %s, will ignore it',
+                                 request_identifier)
                 elif size <= max_size:
-                    Logger.debug('Request %s has body of size %d which is less than %d so will save the body' % (request_identifier, size, max_size))
+                    Logger.debug('Request %s has body of size %d which is less than %d so will save the body' % (
+                        request_identifier, size, max_size))
                     body = self._body(raw_body, content_type)
                 else:
-                    Logger.debug('Request %s has body of size %d which is greater than %d, therefore ignoring' % (request_identifier, size, max_size))
+                    Logger.debug('Request %s has body of size %d which is greater than %d, therefore ignoring' % (
+                        request_identifier, size, max_size))
                     raw_body = None
             else:
                 Logger.debug('No maximum request body size is set, continuing.')
@@ -195,7 +200,8 @@ class ResponseModelFactory(object):
                 except UnicodeDecodeError:
                     content = ''
             except Exception as e:
-                Logger.error('Unable to decode response body using char_set %s due to error: %s. Will ignore. Stacktrace:' % (char_set, e))
+                Logger.error('Unable to decode response body using char_set %s due to error: %s. Will ignore. '
+                             'Stacktrace:' % (char_set, e))
                 traceback.print_exc()
         else:
             # Default to an attempt at UTF-8 decoding.
@@ -216,15 +222,18 @@ class ResponseModelFactory(object):
                 else:
                     if size > max_body_size:
                         content = ''
-                        Logger.debug('Size of %d for %s is bigger than %d so ignoring response body' % (size, self.request.path, max_body_size))
+                        Logger.debug('Size of %d for %s is bigger than %d so ignoring response body' % (
+                            size, self.request.path, max_body_size))
                     else:
-                        Logger.debug('Size of %d for %s is less than %d so saving response body' % (size, self.request.path, max_body_size))
+                        Logger.debug('Size of %d for %s is less than %d so saving response body' % (
+                            size, self.request.path, max_body_size))
             if content_type in content_types_json:
-                # TODO: Perhaps theres a way to format the JSON without parsing it?
+                # TODO: Perhaps there's a way to format the JSON without parsing it?
                 try:
                     body = json.dumps(json.loads(content), sort_keys=True, indent=4)
                 except (TypeError, ValueError):
-                    Logger.warn('Response to request with pk %s has content type %s but was unable to parse it' % (self.request.pk, content_type))
+                    Logger.warn('Response to request with pk %s has content type %s but was unable to parse it' % (
+                        self.request.pk, content_type))
         return body, content
 
     def construct_response_model(self):

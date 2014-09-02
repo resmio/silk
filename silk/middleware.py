@@ -10,7 +10,6 @@ from silk.collector import DataCollector
 
 from silk.config import SilkyConfig
 from silk.model_factory import RequestModelFactory, ResponseModelFactory
-from silk.models import _time_taken
 from silk.profiling import dynamic
 from silk.profiling.profiler import silk_meta_profiler
 from silk.sql import execute_sql
@@ -31,6 +30,7 @@ def silky_reverse(name, *args, **kwargs):
 
 fpath = silky_reverse('summary')
 config = SilkyConfig()
+
 
 def _should_intercept(request):
     """we want to avoid recording any requests/sql queries etc that belong to Silky"""
@@ -83,8 +83,6 @@ class SilkyMiddleware(object):
             request_model = RequestModelFactory(request).construct_request_model()
         DataCollector().configure(request_model)
 
-
-
     def _process_response(self, response):
         with silk_meta_profiler():
             collector = DataCollector()
@@ -97,8 +95,8 @@ class SilkyMiddleware(object):
                 collector.finalise()
                 silk_request.save()
             else:
-                Logger.error('No request model was available when processing response. Did something go wrong in process_request/process_view?')
-
+                Logger.error('No request model was available when processing response. '
+                             'Did something go wrong in process_request/process_view?')
 
     def process_response(self, request, response):
         if getattr(request, 'silk_is_intercepted', False):
